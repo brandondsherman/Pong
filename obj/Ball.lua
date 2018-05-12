@@ -21,6 +21,16 @@ end
 function Ball:update(dt)
     self.x = self.x + self.dx * dt
     self.y = self.y + self.dy * dt
+
+    if ball.y < 0 then
+        self.dy = -1 * self.dy
+    elseif ball.y > VIRTUAL_HEIGHT - ball.height then
+        self.dy = -1 * self.dy
+    elseif ball.x < 0 then
+
+    elseif ball.x > VIRTUAL_WIDTH then
+
+    end
 end
 
 function Ball:draw()
@@ -29,3 +39,19 @@ function Ball:draw()
     end
 end
 
+function Ball:collidedWithPaddle(player)
+    if self.dx < 0 then
+        self.x = player.x + player.width + .1
+    elseif self.dx > 0 then
+        self.x = player.x - self.width - .1
+    end
+    self.dx = -self.dx * BALL_ACCELERATION
+    
+    
+    if self.dy < 0 then
+        self.dy = -1 * math.random(10,150)
+    else
+        self.dy = math.random(10,150)
+    end
+
+end
