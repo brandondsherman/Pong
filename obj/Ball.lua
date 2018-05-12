@@ -24,8 +24,10 @@ function Ball:update(dt)
 
     if ball.y < 0 then
         self.dy = -1 * self.dy
+        sounds['wall_hit']:play()
     elseif ball.y > VIRTUAL_HEIGHT - ball.height then
         self.dy = -1 * self.dy
+        sounds['wall_hit']:play()
     end
 end
 

@@ -28,11 +28,22 @@ function love.load()
 
     push:setupScreen(VIRTUAL_WIDTH, VIRTUAL_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT,{
         fullscreen = false,
-        resizable = false,
+        resizable = true,
         vsync = true
     })
+
+    sounds = {
+        ['paddle_hit'] = love.audio.newSource('data/paddle_hit.wav', 'static'),
+        ['score'] = love.audio.newSource('data/score.wav', 'static'),
+        ['wall_hit'] = love.audio.newSource('data/wall_hit.wav', 'static')
+    }
+
     love.window.setTitle('P O N G')
     gameStart()
+end
+
+function love.resize(w, h)
+    push:resize(w,h)
 end
 
 function gameStart()
@@ -68,21 +79,25 @@ function love.update(dt)
 
     if isColliding(player1, ball) then
         ball:collidedWithPaddle(player1)
+        sounds['paddle_hit']:play()
     end
     if isColliding(player2, ball) then
-        ball:collidedWithPaddle(player2)    
+        ball:collidedWithPaddle(player2)
+        sounds['paddle_hit']:play()    
     end
 
     if ball.x + ball.width < 0 then
         servingPlayer = 2
         player2Score = player2Score + 1
         changeGameState('serve')
+        sounds['score']:play()
     end
 
     if ball.x > VIRTUAL_WIDTH then
         servingPlayer = 1
         player1Score = player1Score + 1
         changeGameState('serve')
+        sounds['score']:play()
     end
 
     if player1Score == 10 or player2Score == 10 then
