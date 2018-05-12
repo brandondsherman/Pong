@@ -1,4 +1,7 @@
 push = require 'libs/push'
+Class = require 'libs/class'
+
+
 
 WINDOW_WIDTH = 1280
 WINDOW_HEIGHT = 720
@@ -9,6 +12,9 @@ VIRTUAL_HEIGHT = 243
 PADDLE_SPEED = 200
 
 function love.load()
+
+    require 'obj/Paddle'
+    require 'obj/Ball'
 
     love.graphics.setDefaultFilter('nearest', 'nearest')
 
@@ -26,50 +32,52 @@ function love.load()
     player1Score = 0
     player2Score = 0
 
-    player1Y = 30
-    player2Y = VIRTUAL_HEIGHT-50
+    player1 = Paddle(10,30,5,20)
+    player2 = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 20)
 
-    ballX = VIRTUAL_WIDTH / 2 - 2
-    ballY = VIRTUAL_HEIGHT / 2 - 2
-
-    ballDX = math.random(2) == 1 and 100 or -100
-    ballDY = math.random(-50, 50)
-
+    ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
+    ball:reset()
+    header = 'press space'
     gameState = 'start'
 end
 
 function love.update(dt)
-    if gameState == 'play' then
         
-        if love.keyboard.isDown('w') then
-            player1Y = math.max(0, player1Y + -PADDLE_SPEED * dt)
-        elseif love.keyboard.isDown('s') then
-            player1Y = math.min(VIRTUAL_HEIGHT, player1Y + PADDLE_SPEED * dt)
-        end
+    if love.keyboard.isDown('w') then
+        player1.dy = -PADDLE_SPEED
+    elseif love.keyboard.isDown('s') then
+        player1.dy = PADDLE_SPEED
+    else
+        player1.dy = 0
+    end
 
-        if love.keyboard.isDown('up') then
-            player2Y = math.max(0, player2Y + -PADDLE_SPEED * dt)
-        elseif love.keyboard.isDown('down') then
-            player2Y = math.min(VIRTUAL_HEIGHT, player2Y + PADDLE_SPEED * dt)
-        end
-        
-        ballX = ballX + ballDX * dt
-        ballY = ballY + ballDY * dt
-        
-    end        
+    if love.keyboard.isDown('up') then
+        player2.dy = -PADDLE_SPEED
+    elseif love.keyboard.isDown('down') then
+        player2.dy = PADDLE_SPEED
+    else
+        player2.dy = 0
+    end
+    if gameState == 'play' then
+        ball:update(dt)
+    end
+
+    player1:update(dt)
+    player2:update(dt)
 end
 
 function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
-    elseif key == 'enter' or key == 'return' or key == 'space' then
+    elseif key == 'space' then
         --print(tostring(gameState))
         if gameState == 'start' then
+            ball:reset()
             gameState = 'play'
+            header = 'P O N G'
         else
             gameState = 'start'
-            ballDX = math.random(2) == 1 and 100 or -100
-            ballDY = math.random(-50, 50) * 1.5
+            header = 'P A U S E D'
         end    
     end
 end
@@ -80,12 +88,9 @@ function love.draw()
     love.graphics.clear(40,45,52,255)
 
     love.graphics.setFont(font)
+
     love.graphics.printf(
-        'Hello Pongworld ' .. gameState,
-        0,
-        20,
-        VIRTUAL_WIDTH,
-        'center'
+         header, 0, 20, VIRTUAL_WIDTH, 'center'
     )
 
     love.graphics.setFont(fontBig)
@@ -94,26 +99,9 @@ function love.draw()
     love.graphics.print(tostring(player2Score), VIRTUAL_WIDTH / 2 + 30,
     VIRTUAL_HEIGHT / 3)
 
-    love.graphics.rectangle(
-        'fill', 
-        10, 
-        player1Y, 
-        5, 
-        20
-    )
-    love.graphics.rectangle(
-        'fill',
-        VIRTUAL_WIDTH - 10,
-        player2Y,
-        5,
-        20
-    )
-    love.graphics.rectangle(
-        'fill',
-        ballX,
-        ballY,
-        4,
-        4
-    )
+    player1:draw()
+    player2:draw()
+    ball:draw()
+
     push:apply('end')
 end
