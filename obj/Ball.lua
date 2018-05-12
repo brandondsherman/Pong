@@ -14,7 +14,7 @@ end
 function Ball:reset(yOffset)
     self.x = VIRTUAL_WIDTH / 2 - (self.width / 2)
     self.y = yOffset + VIRTUAL_HEIGHT / 2 - (self.height / 2)
-    self.dx = servingPlayer and 100 or -100
+    self.dx = servingPlayer == 1 and 100 or -100
     self.dy = math.random(-50, 50)
 end
 

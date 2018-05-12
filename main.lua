@@ -14,6 +14,8 @@ BALL_ACCELERATION = 1.03
 
 function love.load()
 
+    
+
     require 'obj/Paddle'
     require 'obj/Ball'
 
@@ -30,6 +32,10 @@ function love.load()
         vsync = true
     })
     love.window.setTitle('P O N G')
+    gameStart()
+end
+
+function gameStart()
     player1Score = 0
     player2Score = 0
 
@@ -37,6 +43,7 @@ function love.load()
     player2 = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 30, 5, 20)
 
     ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, 4, 4)
+    
     if ball.dx < 0 then
         servingPlayer = 2
     else 
@@ -47,7 +54,8 @@ function love.load()
 end
 
 function love.update(dt)
-        
+    
+
     handleInput(dt)
 
 
@@ -76,29 +84,16 @@ function love.update(dt)
         player1Score = player1Score + 1
         changeGameState('serve')
     end
-    
+
+    if player1Score == 10 or player2Score == 10 then
+        changeGameState('victory')
+    end
     
 end
 
 function handleInput(dt)
 
-    --[[if gameState == 'start' then
-        if love.keyboard.isDown('space') then
-            changeGameState('play')
-        end
-    end
-
-    if gameState == 'paused' then
-        if love.keyboard.isDown('space') then
-            changeGameState('play')
-        end
-    end
-    ]]--
-
     if gameState == 'serve' then
-        --[[if love.keyboard.isDown('space') then
-            changeGameState('play')
-        end]]--
 
         if servingPlayer == 1 then
             if love.keyboard.isDown('w') then
@@ -154,11 +149,15 @@ function love.keypressed(key)
     if key == 'escape' then
         love.event.quit()
     elseif key == 'space' then
-        --print(tostring(gameState))
+        
         if gameState == 'start' or gameState == 'paused' or gameState == 'serve' then
             changeGameState('play')
-        else
+        elseif gameState == 'play' then
+            
             changeGameState('paused')
+        elseif gameState == 'victory' then
+            
+            gameStart()
         end    
     end
 end
@@ -186,7 +185,9 @@ function love.draw()
     player1:draw()
     player2:draw()
     ball:draw()
-
+    for i=0, 23 do
+        love.graphics.line(VIRTUAL_WIDTH / 2, i * 20 + 6, VIRTUAL_WIDTH / 2, i * 20 + 10 + 6)
+    end
     push:apply('end')
 end
 
@@ -218,4 +219,30 @@ function changeGameState(newState)
         ball:reset(0)
         header = 'P' .. tostring(servingPlayer) .. ' Serving'
     end
-end
+
+    if newState == 'victory' then
+        ball:reset(0)
+        local winner = 0
+        local verb = ' won'
+        if player1Score == 10 then
+            winner = 1
+            if player1Score - player2Score >= 9 then
+                verb = ' decimated P2'
+            end
+            if player2Score == 0 then
+                verb = " dominated\nP2 you suck!"
+            end
+        else 
+            winner = 2
+            if player2Score - player1Score >= 9 then
+                verb = ' decimated P1'
+            elseif player1Score == 0 then
+                verb = " dominated\n P1 you suck!"
+            end
+        end
+        
+        header = 'P' .. tostring(winner) .. verb
+        
+    end
+
+ end
